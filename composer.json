@@ -1,0 +1,45 @@
+{
+    "name": "daalvand/laravel-elasticsearch",
+    "description": "Use Elasticsearch as a database in Laravel to retrieve Eloquent models and perform aggregations.",
+    "keywords": [
+        "laravel",
+        "eloquent",
+        "elasticsearch",
+        "database",
+        "model"
+    ],
+    "authors": [
+        {
+            "name": "Mehdi Daalvand"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "php": "^7.4",
+        "elasticsearch/elasticsearch": "^7.0",
+        "laravel/framework": "^5.6|^6.0|^7.0|^8.0"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-latest",
+        "orchestra/testbench": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Daalvand\\LaravelElasticsearch\\": "src/",
+            "Daalvand\\LaravelElasticsearch\\Tests\\" : "tests/"
+        }
+    },
+    "autoload-dev": {
+        "files": [
+        ],
+        "psr-4": {
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Daalvand\\LaravelElasticsearch\\ElasticsearchServiceProvider"
+            ]
+        }
+    }
+}

@@ -1,0 +1,17 @@
+version: '3'
+services:
+  unit-tests:
+    image: daalvand/laravel-elasticsearch
+    command: phpdbg -qrr ./vendor/bin/phpunit
+    volumes:
+      - .:/opt
+    working_dir: /opt
+
+  composer:
+    build:
+      context: .
+      dockerfile: Dockerfile.composer
+    command: composer -o install
+    volumes:
+      - .:/opt
+    working_dir: /opt
