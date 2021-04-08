@@ -719,7 +719,7 @@ class Builder extends BaseBuilder
      */
     protected function getResultsOnce($byScroll = false)
     {
-        if($byScroll){
+        if ($byScroll) {
             $this->results = null;
         }
         if (!$this->hasProcessedSelect()) {
