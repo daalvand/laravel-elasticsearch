@@ -722,7 +722,8 @@ class Builder extends BaseBuilder
         if ($byScroll) {
             $this->results = null;
         }
-        if (!$this->hasProcessedSelect()) {
+        //if (!$this->hasProcessedSelect()) {
+        if (true) {
             $this->results = $this->processor->processSelect(
                 $this,
                 $byScroll ? $this->runScroll() : $this->runSelect()
@@ -779,7 +780,8 @@ class Builder extends BaseBuilder
      */
     public function getSearchDuration()
     {
-        if (!$this->hasProcessedSelect()) {
+        //if (!$this->hasProcessedSelect()) {
+        if(true){
             $this->getResultsOnce();
         }
 
