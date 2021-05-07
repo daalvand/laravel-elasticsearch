@@ -57,12 +57,12 @@ class QueryGrammar extends BaseGrammar
             $params['body']['size'] = $builder->limit;
         }
 
-        if (isset($builder->scrollId)) {
-            $params['scroll_id'] = $builder->scrollId;
+        if (isset($builder->searchAfter) && $builder->searchAfter) {
+            $params['body']['search_after'] = $builder->searchAfter;
         }
 
-        if (isset($builder->searchAfter) && $builder->searchAfter) {
-            $params['search_after'] = $builder->searchAfter;
+        if (isset($builder->scrollId)) {
+            $params['scroll_id'] = $builder->scrollId;
         }
 
         if (isset($builder->scrollTime)) {

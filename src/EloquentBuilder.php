@@ -35,7 +35,7 @@ class EloquentBuilder extends BaseBuilder
      */
     public function searchAfter(array $sorts): self
     {
-        $this->toBase()->searchAfter($sorts);
+        $this->query->searchAfter($sorts);
         return $this;
     }
 
