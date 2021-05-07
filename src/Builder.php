@@ -77,9 +77,10 @@ class Builder extends BaseBuilder
      */
     public        $operators = ['=', '<', '>', '<=', '>=', '!=', 'exists'];
 
-    public function searchAfter(array $sorts)
+    public function searchAfter(array $sorts): self
     {
         $this->searchAfter = $sorts;
+        return $this;
     }
 
     /**

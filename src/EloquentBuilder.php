@@ -29,6 +29,20 @@ class EloquentBuilder extends BaseBuilder
     protected $type;
 
     /**
+     * this method used for deep paginate
+     * @param array $sorts
+     * @return $this
+     */
+    public function searchAfter(array $sorts): self
+    {
+        $this->toBase()->searchAfter($sorts);
+        return $this;
+    }
+
+
+
+
+    /**
      * Set a model instance for the model being queried.
      *
      * @param Model $model
