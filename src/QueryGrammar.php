@@ -61,6 +61,10 @@ class QueryGrammar extends BaseGrammar
             $params['scroll_id'] = $builder->scrollId;
         }
 
+        if (isset($builder->searchAfter) && $builder->searchAfter) {
+            $params['search_after'] = $builder->searchAfter;
+        }
+
         if (isset($builder->scrollTime)) {
             $params['scroll'] = $builder->scrollTime;
         }

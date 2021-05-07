@@ -58,6 +58,7 @@ class Builder extends BaseBuilder
     public            $type;
     public string     $scrollTime;
     public string     $scrollId;
+    public array      $searchAfter;
     public array      $filters       = [];
     public array      $postFilters   = [];
     public array      $aggregations  = [];
@@ -74,7 +75,12 @@ class Builder extends BaseBuilder
      *
      * @var array
      */
-    public $operators = ['=', '<', '>', '<=', '>=', '!=', 'exists'];
+    public        $operators = ['=', '<', '>', '<=', '>=', '!=', 'exists'];
+
+    public function searchAfter(array $sorts)
+    {
+        $this->searchAfter = $sorts;
+    }
 
     /**
      * Set the document type the search is targeting.

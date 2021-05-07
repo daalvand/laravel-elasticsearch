@@ -6,11 +6,11 @@ use Illuminate\Database\Query\Processors\Processor as BaseProcessor;
 
 class QueryProcessor extends BaseProcessor
 {
-    protected array $rawResponse;
-    protected array $aggregations;
-    protected int $total;
+    protected array   $rawResponse;
+    protected array   $aggregations;
+    protected int     $total;
     protected ?string $scrollId;
-    private Builder $query;
+    private Builder   $query;
 
     /**
      * Process the results of a "select" query.
@@ -44,9 +44,9 @@ class QueryProcessor extends BaseProcessor
      */
     public function documentFromResult(Builder $query, array $result): array
     {
-        $document       = $result['_source'];
-        $document['id'] = $result['_id'];
-
+        $document          = $result['_source'];
+        $document['id']    = $result['_id'];
+        $document['_sort'] = $result['sort'] ?? null;
         if ($query->includeInnerHits && isset($result['inner_hits'])) {
             $document = $this->addInnerHitsToDocument($document, $result['inner_hits']);
         }
