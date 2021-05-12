@@ -13,6 +13,9 @@ use InvalidArgumentException;
 /**
  * Class EloquentBuilder
  * @method Builder filter($filters) Support for Searchable::scopeFilter()
+ * @method Builder|self wildcard(string $column, string $query, $options = [], $boolean = 'and')
+ *  @method Builder|self regexp(string $column, string $query, $options = [], $boolean = 'and')
+ *  @method Builder|self queryString($query, $options = [], $boolean = 'and')
  * @package Daalvand\LaravelElasticsearch
  */
 class EloquentBuilder extends BaseBuilder
