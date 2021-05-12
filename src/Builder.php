@@ -187,6 +187,27 @@ class Builder extends BaseBuilder
         return $this;
     }
 
+
+        /**
+     * Add a where between statement to the query.
+     *
+     * @param string $column
+     * @param array  $values
+     * @param string $boolean
+     * @param bool   $not
+     * @return self
+     */
+    public function whereQueryString($column, array $values, $boolean = 'and', $not = false): self
+    {
+        $type           = 'Between';
+        $this->wheres[] = compact('column', 'values', 'type', 'boolean', 'not');
+
+        return $this;
+    }
+
+
+
+
     /**
      * Add a 'distance from point' statement to the query.
      *
@@ -466,6 +487,73 @@ class Builder extends BaseBuilder
     }
 
     /**
+     * Add a text wildcard clause to the query.
+     *
+     * @param string $column
+     * @param string $query
+     * @param array  $options
+     * @param string $boolean
+     * @return self
+     */
+    public function wildcard(string $column, string $query, $options = [], $boolean = 'and'): self
+    {
+        $this->wheres[] = [
+            'type'    => 'Wildcard',
+            'value'   => $query,
+            'column'  => $column,
+            'boolean' => $boolean,
+            'options' => $options,
+        ];
+
+        return $this;
+    }
+
+
+    /**
+     * Add a text regexp clause to the query.
+     *
+     * @param string $column
+     * @param string $query
+     * @param array  $options
+     * @param string $boolean
+     * @return self
+     */
+    public function regexp(string $column, string $query, $options = [], $boolean = 'and'): self
+    {
+        $this->wheres[] = [
+            'type'    => 'Regexp',
+            'value'   => $query,
+            'column'  => $column,
+            'boolean' => $boolean,
+            'options' => $options,
+        ];
+
+        return $this;
+    }
+
+
+    /**
+     * Add a text query_string clause to the query.
+     *
+     * @param string $query
+     * @param array  $options
+     * @param string $boolean
+     * @return self
+     */
+    public function queryString($query, $options = [], $boolean = 'and'): self
+    {
+        $this->wheres[] = [
+            'type'    => 'QueryString',
+            'value'   => $query,
+            'boolean' => $boolean,
+            'options' => $options,
+        ];
+
+        return $this;
+    }
+
+
+    /**
      * Add a text search clause to the query.
      *
      * @param string $query
@@ -544,7 +632,7 @@ class Builder extends BaseBuilder
      */
     protected function whereRelationship(string $relationshipType, string $documentType, Closure $callback, array $options = [], string $boolean = 'and'): self
     {
-        call_user_func($callback, $query = $this->newQuery());
+        $callback($query = $this->newQuery());
 
         $this->wheres[] = [
             'type'         => ucfirst($relationshipType),
@@ -580,11 +668,11 @@ class Builder extends BaseBuilder
         }
 
         if (!is_string($args) && is_callable($args)) {
-            call_user_func($args, $args = $this->newQuery());
+            $args($args = $this->newQuery());
         }
 
         if (!is_string($aggregations) && is_callable($aggregations)) {
-            call_user_func($aggregations, $aggregations = $this->newQuery());
+            $aggregations($aggregations = $this->newQuery());
         }
 
         $this->aggregations[] = compact(

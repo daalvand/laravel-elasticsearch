@@ -501,6 +501,70 @@ class QueryGrammar extends BaseGrammar
     }
 
     /**
+     * Compile a query_string clause
+     *
+     * @param Builder $builder
+     * @param array   $where
+     * @return array
+     * @noinspection PhpUnusedParameterInspection
+     */
+    protected function compileWhereQueryString(Builder $builder, array $where): array
+    {
+        $options = $where['options'] ?? [];
+        $main    = ['query'  => $where['value']];
+        return [
+            'query_string' => array_merge($options, $main),
+        ];
+    }
+
+
+    /**
+     * Compile a wildcard clause
+     *
+     * @param Builder $builder
+     * @param array   $where
+     * @return array
+     * @noinspection PhpUnusedParameterInspection
+     */
+    protected function compileWhereWildcard(Builder $builder, array $where): array
+    {
+        $options = $where['options'] ?? [];
+        $main = [
+            'value'            => $where['value'],
+            "boost"            => $options["boost"] ?? 1.0,
+            "rewrite"          => $options["rewrite"] ?? "constant_score",
+            "case_insensitive" => $options["case_insensitive"] ?? false
+        ];
+        return [
+            'wildcard' => [$where['column'] => $main],
+        ];
+    }
+
+        /**
+     * Compile a wildcard clause
+     *
+     * @param Builder $builder
+     * @param array   $where
+     * @return array
+     * @noinspection PhpUnusedParameterInspection
+     */
+    protected function compileWhereRegexp(Builder $builder, array $where): array
+    {
+        $options = $where['options'] ?? [];
+        $main = [
+            'value'                   => $where['value'],
+            "flags"                   => $options["flags"] ?? "ALL",
+            "case_insensitive"        => $options["case_insensitive"] ?? false,
+            "max_determinized_states" => $options["max_determinized_states"] ?? 10000,
+            "rewrite"                 => $options["rewrite"] ?? "constant_score"
+        ];
+        return [
+            'wildcard' => [$where['column'] => $main],
+        ];
+    }
+
+
+    /**
      * Compile a search clause
      *
      * @param Builder $builder
