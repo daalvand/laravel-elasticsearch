@@ -559,7 +559,7 @@ class QueryGrammar extends BaseGrammar
             "rewrite"                 => $options["rewrite"] ?? "constant_score"
         ];
         return [
-            'wildcard' => [$where['column'] => $main],
+            'regexp' => [$where['column'] => $main],
         ];
     }
 
