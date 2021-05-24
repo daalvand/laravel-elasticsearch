@@ -1137,10 +1137,10 @@ class QueryGrammar extends BaseGrammar
     {
         $params = [];
         foreach ($values as $doc) {
-            $this->cleanDocs($doc);
+            $this->cleanDoc($doc);
             if (isset($doc['child_documents'])) {
-                $this->cleanDocs($doc);
                 foreach ($doc['child_documents'] as $childDoc) {
+                    $this->cleanDoc($childDoc);
                     $params['body'][] = [
                         'index' => [
                             '_index' => $builder->from . $this->indexSuffix,
@@ -1180,10 +1180,10 @@ class QueryGrammar extends BaseGrammar
     {
         $params = [];
         foreach ($values as $doc) {
+            $this->cleanDoc($doc);
             if (isset($doc['child_documents'])) {
-                $this->cleanDocs($doc);
                 foreach ($doc['child_documents'] as $childDoc) {
-                    $this->cleanDocs($childDoc);
+                    $this->cleanDoc($childDoc);
                     $params['body'][] = [
                         'update' => [
                             '_index' => $builder->from . $this->indexSuffix,
@@ -1317,10 +1317,10 @@ class QueryGrammar extends BaseGrammar
     }
 
     /**
-     * @param $childDoc
+     * @param $doc
      */
-    private function cleanDocs(&$childDoc): void
+    private function cleanDoc(&$doc): void
     {
-        unset($childDoc['_sort']);
+        unset($doc['_sort']);
     }
 }
