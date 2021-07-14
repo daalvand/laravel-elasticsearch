@@ -9,7 +9,7 @@ class Collection extends BaseCollection
     public function addToIndex()
     {
         if ($this->isEmpty()) {
-            return;
+            return null;
         }
 
         $instance = $this->first();
