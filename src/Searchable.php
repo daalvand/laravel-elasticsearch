@@ -298,6 +298,6 @@ trait Searchable
      */
     protected function driverIsElasticsearch(): bool
     {
-        return $this->getConnection()->getConfig('driver') !== $this->elasticDriver();
+        return $this->getConnection()->getConfig('driver') === $this->elasticDriver();
     }
 }
