@@ -20,10 +20,19 @@ use Illuminate\Support\Str;
  */
 trait Searchable
 {
-    public static function getElasticsearchConnectionName(): string
+    public function getElasticsearchConnectionName(): string
+    {
+        if ($this->driverIsElasticsearch()) {
+            return $this->getConnection()->getName();
+        }
+        return 'elasticsearch';
+    }
+
+    public function elasticDriver(): string
     {
         return 'elasticsearch';
     }
+
 
     /**
      * Begin querying the model.
@@ -91,7 +100,7 @@ trait Searchable
         $arguments = array_slice(func_get_args(), 1);
 
         $elasticModel = clone $arguments[0];
-        $elasticModel->setConnection(static::getElasticsearchConnectionName());
+        $elasticModel->setConnection($this->getElasticsearchConnectionName());
 
         $arguments[0] = $elasticModel;
 
@@ -162,7 +171,7 @@ trait Searchable
     public function toSearchableArray()
     {
         // Run this on the search connection if it's not the current connection
-        if ($this->getConnectionName() !== static::getElasticsearchConnectionName()) {
+        if ($this->driverIsElasticsearch()) {
             return $this->onSearchConnection(function ($model) {
                 return $model->toSearchableArray();
             }, $this);
@@ -236,20 +245,20 @@ trait Searchable
     /**
      * @return EloquentBuilder
      */
-    public static function newElasticsearchQuery(): EloquentBuilder
+    public function newElasticsearchQuery(): EloquentBuilder
     {
-        return static::on(static::getElasticsearchConnectionName());
+        return $this->on($this->getElasticsearchConnectionName());
     }
 
     /**
      * Create a new Eloquent builder for the model.
      *
      * @param BaseBuilder $query
-     * @return BaseEloquentBuilder|EloquentBuilder|static
+     * @return BaseEloquentBuilder|EloquentBuilder
      */
     public function newEloquentBuilder($query)
     {
-        if ($this->getConnectionName() === static::getElasticsearchConnectionName()) {
+        if ($this->driverIsElasticsearch()) {
             return new EloquentBuilder($query);
         }
         return new BaseEloquentBuilder($query);
@@ -263,7 +272,7 @@ trait Searchable
     protected function newBaseQueryBuilder()
     {
         $connection = $this->getConnection();
-        if ($this->getConnectionName() === static::getElasticsearchConnectionName()) {
+        if ($this->driverIsElasticsearch()) {
             return new Builder($connection, $connection->getQueryGrammar(), $connection->getPostProcessor());
         }
         return new BaseBuilder($connection, $connection->getQueryGrammar(), $connection->getPostProcessor());
@@ -278,9 +287,17 @@ trait Searchable
      */
     public function qualifyColumn($column)
     {
-        if ($this->getConnectionName() === static::getElasticsearchConnectionName()) {
+        if ($this->driverIsElasticsearch()) {
             return $column;
         }
         return parent::qualifyColumn($column);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function driverIsElasticsearch(): bool
+    {
+        return $this->getConnection()->getConfig('driver') !== $this->elasticDriver();
     }
 }
