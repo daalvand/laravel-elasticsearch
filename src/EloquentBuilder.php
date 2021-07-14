@@ -79,6 +79,10 @@ class EloquentBuilder extends BaseBuilder
         }, $items));
     }
 
+    public function getAggregationResults()
+    {
+        return $this->applyScopes()->query->getAggregationResults();
+    }
 
     /**
      * Execute the query as a "select" statement.
