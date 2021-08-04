@@ -11,6 +11,6 @@ abstract class Model extends BaseModel
 {
     use Searchable, HasRelationships, BaseHasRelationships {
         BaseHasRelationships::newBelongsTo as deprecatedNewBelongsTo;
-        HasRelationships::newBelongsTo insteadof BaseHasRelationships::deprecatedNewBelongsTo;
+        HasRelationships::newBelongsTo insteadof BaseHasRelationships;
     }
 }
