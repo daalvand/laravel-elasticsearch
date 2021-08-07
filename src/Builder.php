@@ -775,14 +775,13 @@ class Builder extends BaseBuilder
 
     /**
      * Get the aggregations returned from query
-     *
-     * @return array
+     * @return AggregationResult
      */
-    public function getAggregationResults(): array
+    public function getAggregationResults(): AggregationResult
     {
         $this->getResultsOnce();
 
-        return $this->processor->getAggregationResults();
+        return AggregationResult::make($this->processor->getAggregationResults(), $this->processor->getTotal());
     }
 
     /**
