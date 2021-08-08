@@ -511,7 +511,7 @@ class QueryGrammar extends BaseGrammar
     protected function compileWhereQueryString(Builder $builder, array $where): array
     {
         $options = $where['options'] ?? [];
-        $main    = ['query'  => $where['value']];
+        $main    = ['query' => $where['value']];
         return [
             'query_string' => array_merge($options, $main),
         ];
@@ -529,7 +529,7 @@ class QueryGrammar extends BaseGrammar
     protected function compileWhereWildcard(Builder $builder, array $where): array
     {
         $options = $where['options'] ?? [];
-        $main = [
+        $main    = [
             'value'            => $where['value'],
             "boost"            => $options["boost"] ?? 1.0,
             "rewrite"          => $options["rewrite"] ?? "constant_score",
@@ -540,7 +540,7 @@ class QueryGrammar extends BaseGrammar
         ];
     }
 
-        /**
+    /**
      * Compile a wildcard clause
      *
      * @param Builder $builder
@@ -551,7 +551,7 @@ class QueryGrammar extends BaseGrammar
     protected function compileWhereRegexp(Builder $builder, array $where): array
     {
         $options = $where['options'] ?? [];
-        $main = [
+        $main    = [
             'value'                   => $where['value'],
             "flags"                   => $options["flags"] ?? "ALL",
             "case_insensitive"        => $options["case_insensitive"] ?? false,
@@ -1321,6 +1321,8 @@ class QueryGrammar extends BaseGrammar
      */
     private function cleanDoc(&$doc): void
     {
-        unset($doc['_sort']);
+        if (is_array($doc) && !empty($doc)) {
+            unset($doc['_sort']);
+        }
     }
 }
