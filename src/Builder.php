@@ -687,22 +687,18 @@ class Builder extends BaseBuilder
 
     /**
      * @param string     $column
-     * @param int|string $direction
-     * @param array      $options
+     * @param array|string $direction
      * @return self
      */
-    public function orderBy($column, $direction = 1, $options = null): self
+    public function orderBy($column, $direction = 'asc'): self
     {
         if (is_string($direction)) {
-            $direction = strtolower($direction) === 'asc' ? 1 : -1;
+            $direction = strtolower($direction);
         }
-
-        $type = $options['type'] ?? 'basic';
-
-        $this->orders[] = compact('column', 'direction', 'type', 'options');
-
+        $this->orders[] = compact('column', 'direction');
         return $this;
     }
+
 
     /**
      * Whether to include inner hits in the response
