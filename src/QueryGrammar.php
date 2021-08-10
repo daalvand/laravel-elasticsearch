@@ -1100,30 +1100,7 @@ class QueryGrammar extends BaseGrammar
      */
     protected function compileOrders($builder, $orders = []): array
     {
-        $compiledOrders = [];
-
-        foreach ($orders as $order) {
-            $column = $order['column'];
-            $type   = $order['type'] ?? 'basic';
-            if ($type === 'geoDistance') {
-                $orderSettings = [
-                    $column         => $order['options']['coordinates'],
-                    'order'         => $order['direction'] < 0 ? 'desc' : 'asc',
-                    'unit'          => $order['options']['unit'] ?? 'km',
-                    'distance_type' => $order['options']['distanceType'] ?? 'plane',
-                ];
-                $column        = '_geo_distance';
-            } else {
-                $orderSettings  = ['order' => $order['direction'] < 0 ? 'desc' : 'asc'];
-                $allowedOptions = ['missing', 'mode'];
-                $options        = isset($order['options']) ? array_intersect_key($order['options'], array_flip($allowedOptions)) : [];
-                /** @noinspection SlowArrayOperationsInLoopInspection */
-                $orderSettings = array_merge($options, $orderSettings);
-            }
-            $compiledOrders[] = [$column => $orderSettings];
-        }
-
-        return $compiledOrders;
+        return collect($orders)->pluck('direction', 'column')->toArray();
     }
 
     /**
