@@ -67,7 +67,10 @@ class Builder extends BaseBuilder
     protected         $results;
     protected ?int    $resultsOffset = null;
     protected ?string $routing       = null;
-    /** @var mixed[] */
+
+    /**
+     * @var string[]
+     */
     protected array $options = [];
 
     /**
@@ -75,7 +78,7 @@ class Builder extends BaseBuilder
      *
      * @var array
      */
-    public        $operators = ['=', '<', '>', '<=', '>=', '!=', 'exists'];
+    public $operators = ['=', '<', '>', '<=', '>=', '!=', 'exists'];
 
     public function searchAfter(array $sorts): self
     {
@@ -153,6 +156,55 @@ class Builder extends BaseBuilder
     public function getOptions(): array
     {
         return $this->options;
+    }
+
+    public function setOptions(array $options)
+    {
+        $this->options = $options;
+        return $this;
+    }
+
+    public function addOption(string $option, $value)
+    {
+        $this->options[$option] = $value;
+        return $this;
+    }
+
+    /**
+     * Set whether to refresh during delete by query
+     *
+     * @link https://www.elastic.co/guide/en/elasticsearch/reference/7.x/docs-delete-by-query.html#docs-delete-by-query-api-query-params
+     * @link https://www.elastic.co/guide/en/elasticsearch/reference/7.x/docs-delete-by-query.html#_refreshing_shards
+     *
+     * @param string $value
+     * @return self
+     * @throws RuntimeException
+     */
+    public function withRefresh($value = ''): self
+    {
+        if (in_array($value, self::REFRESH)) {
+            $this->options['refresh'] = $value;
+            return $this;
+        }
+        throw new RuntimeException("$value is an invalid refresh option, valid options are: " . implode(', ', self::REFRESH));
+    }
+
+    /**
+     * Set how to handle conflucts during a delete request
+     *
+     * @link https://www.elastic.co/guide/en/elasticsearch/reference/7.x/docs-delete-by-query.html#docs-delete-by-query-api-query-params
+     *
+     * @param string $value
+     * @return self
+     * @throws RuntimeException()
+     */
+    public function onConflicts(string $value): self
+    {
+        if (in_array($value, self::CONFLICT)) {
+            $this->options['conflicts'] = $value;
+            return $this;
+        }
+        throw new RuntimeException("$value is an invalid conflicts option, valid options are: " . implode(', ', self::CONFLICT));
     }
 
 
@@ -709,43 +761,6 @@ class Builder extends BaseBuilder
     {
         $this->includeInnerHits = true;
         return $this;
-    }
-
-    /**
-     * Set whether to refresh during delete by query
-     *
-     * @link https://www.elastic.co/guide/en/elasticsearch/reference/7.x/docs-delete-by-query.html#docs-delete-by-query-api-query-params
-     * @link https://www.elastic.co/guide/en/elasticsearch/reference/7.x/docs-delete-by-query.html#_refreshing_shards
-     *
-     * @param string $value
-     * @return self
-     * @throws RuntimeException
-     */
-    public function withRefresh($value = ''): self
-    {
-        if (in_array($value, self::REFRESH)) {
-            $this->options['refresh'] = $value;
-            return $this;
-        }
-        throw new RuntimeException("$value is an invalid refresh option, valid options are: " . implode(', ', self::REFRESH));
-    }
-
-    /**
-     * Set how to handle conflucts during a delete request
-     *
-     * @link https://www.elastic.co/guide/en/elasticsearch/reference/7.x/docs-delete-by-query.html#docs-delete-by-query-api-query-params
-     *
-     * @param string $value
-     * @return self
-     * @throws RuntimeException()
-     */
-    public function onConflicts(string $value): self
-    {
-        if (in_array($value, self::CONFLICT)) {
-            $this->options['conflicts'] = $value;
-            return $this;
-        }
-        throw new RuntimeException("$value is an invalid conflicts option, valid options are: " . implode(', ', self::CONFLICT));
     }
 
     /**
