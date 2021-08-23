@@ -71,7 +71,7 @@ class Builder extends BaseBuilder
     /**
      * @var string[]
      */
-    protected array $options = [];
+    protected array $options = ['refresh' => 'wait_for'];
 
     /**
      * All of the supported clause operators.
