@@ -42,6 +42,17 @@ class EloquentBuilder extends BaseBuilder
         return $this;
     }
 
+    /**
+     * if set it true you can see count of all documents
+     * @param bool $trackTotalHits
+     * @return self
+     */
+    public function trackTotalHits(bool $trackTotalHits): self
+    {
+        $this->query->trackTotalHits($trackTotalHits);
+        return $this;
+    }
+
 
 
 

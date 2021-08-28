@@ -57,7 +57,11 @@ class QueryGrammar extends BaseGrammar
             $params['body']['size'] = $builder->limit;
         }
 
-        if (isset($builder->searchAfter) && $builder->searchAfter) {
+        if($builder->trackTotalHits ?? false){
+            $params['body']['track_total_hits'] = $builder->trackTotalHits;
+        }
+
+        if ($builder->searchAfter ?? null) {
             $params['body']['search_after'] = $builder->searchAfter;
         }
 

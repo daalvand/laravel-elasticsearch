@@ -67,7 +67,7 @@ class Builder extends BaseBuilder
     protected         $results;
     protected ?int    $resultsOffset = null;
     protected ?string $routing       = null;
-
+    public    bool    $trackTotalHits = false;
     /**
      * @var string[]
      */
@@ -83,6 +83,18 @@ class Builder extends BaseBuilder
     public function searchAfter(array $sorts): self
     {
         $this->searchAfter = $sorts;
+        return $this;
+    }
+
+
+    /**
+     * if set it true you can see count of all documents
+     * @param bool $trackTotalHits
+     * @return Builder
+     */
+    public function trackTotalHits(bool $trackTotalHits): self
+    {
+        $this->trackTotalHits = $trackTotalHits;
         return $this;
     }
 
