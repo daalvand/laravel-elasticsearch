@@ -997,31 +997,10 @@ class QueryGrammar extends BaseGrammar
      */
     protected function compileDateHistogramAggregation(array $aggregation): array
     {
-        $field = is_array($aggregation['args']) ? $aggregation['args']['field'] : $aggregation['args'];
-
-        $compiled = [
-            'date_histogram' => [
-                'field' => $field
-            ]
-        ];
-
         if (is_array($aggregation['args'])) {
-            if (isset($aggregation['args']['interval'])) {
-                $compiled['date_histogram']['interval'] = $aggregation['args']['interval'];
-            }
-
-            if (isset($aggregation['args']['min_doc_count'])) {
-                $compiled['date_histogram']['min_doc_count'] = $aggregation['args']['min_doc_count'];
-            }
-
-            if (isset($aggregation['args']['extended_bounds']) && is_array($aggregation['args']['extended_bounds'])) {
-                $compiled['date_histogram']['extended_bounds']        = [];
-                $compiled['date_histogram']['extended_bounds']['min'] = $this->convertDateTime($aggregation['args']['extended_bounds'][0]);
-                $compiled['date_histogram']['extended_bounds']['max'] = $this->convertDateTime($aggregation['args']['extended_bounds'][1]);
-            }
+            return ['date_histogram' => $aggregation['args']];
         }
-
-        return $compiled;
+        return ['date_histogram' => ['field' => $aggregation['args']]];
     }
 
     /**
