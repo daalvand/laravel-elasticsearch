@@ -57,7 +57,7 @@ class QueryGrammar extends BaseGrammar
             $params['body']['size'] = $builder->limit;
         }
 
-        if($builder->trackTotalHits ?? false){
+        if ($builder->trackTotalHits ?? false) {
             $params['body']['track_total_hits'] = $builder->trackTotalHits;
         }
 
@@ -967,6 +967,25 @@ class QueryGrammar extends BaseGrammar
             $compiled['terms'] = array_merge($compiled['terms'], $validArgs);
         }
 
+        return $compiled;
+    }
+
+
+    /**
+     * Compile cardinality aggregation
+     *
+     * @param array $aggregation
+     * @return array
+     */
+    protected function compileCardinalityAggregation(array $aggregation): array
+    {
+        $field = is_array($aggregation['args']) ? $aggregation['args']['field'] : $aggregation['args'];
+
+        $compiled = ['cardinality' => ['field' => $field]];
+
+        if ($aggregation['precision_threshold'] ?? null) {
+            $compiled['cardinality']['precision_threshold'] = $aggregation['precision_threshold'];
+        }
         return $compiled;
     }
 
