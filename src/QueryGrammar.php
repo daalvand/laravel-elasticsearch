@@ -884,10 +884,15 @@ class QueryGrammar extends BaseGrammar
         $key = $aggregation['key'];
 
         $method = 'compile' . ucfirst(Str::camel($aggregation['type'])) . 'Aggregation';
-
-        $compiled = [
-            $key => $this->$method($aggregation)
-        ];
+        if (method_exists($this, $method)) {
+            $compiled = [
+                $key => $this->$method($aggregation)
+            ];
+        } else {
+            $compiled = [
+                Str::snake($aggregation['type']) => $aggregation['args']
+            ];
+        }
 
         if (isset($aggregation['aggregations']) && $aggregation['aggregations']->aggregations) {
             $compiled[$key]['aggregations'] = $this->compileAggregations($aggregation['aggregations']);
@@ -1026,13 +1031,11 @@ class QueryGrammar extends BaseGrammar
     {
         $field = is_array($aggregation['args']) ? $aggregation['args']['field'] : $aggregation['args'];
 
-        $compiled = [
+        return [
             'exists' => [
                 'field' => $field
             ]
         ];
-
-        return $compiled;
     }
 
     /**
