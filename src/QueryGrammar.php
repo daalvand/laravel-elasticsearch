@@ -890,7 +890,9 @@ class QueryGrammar extends BaseGrammar
             ];
         } else {
             $compiled = [
-                Str::snake($aggregation['type']) => $aggregation['args']
+                $key => [
+                    Str::snake($aggregation['type']) => $aggregation['args']
+                ]
             ];
         }
 
