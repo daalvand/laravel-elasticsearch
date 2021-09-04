@@ -1,6 +1,6 @@
 <?php
 
-namespace Daalvand\LaravelElasticsearch;
+namespace Daalvand\LaravelElasticsearch\Exceptions;
 
 use Exception;
 use Illuminate\Database\QueryException as BaseQueryException;
