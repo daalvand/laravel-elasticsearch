@@ -6,6 +6,8 @@ use Closure;
 use Daalvand\LaravelElasticsearch\Database\Schema\Blueprint;
 use Daalvand\LaravelElasticsearch\Database\Schema\ElasticsearchBuilder;
 use Daalvand\LaravelElasticsearch\Database\Schema\Grammars\ElasticsearchGrammar;
+use Daalvand\LaravelElasticsearch\Exceptions\BulkException;
+use Daalvand\LaravelElasticsearch\Exceptions\QueryException;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Exception;
@@ -558,6 +560,9 @@ class Connection extends BaseConnection
     {
         try {
             $result = $callback($query, $bindings);
+            if ($result['errors'] ?? false) {
+                throw new BulkException($query, $bindings, $result);
+            }
         } catch (Exception $e) {
             throw new QueryException($query, $e);
         }
