@@ -5,7 +5,6 @@ namespace Daalvand\LaravelElasticsearch;
 use DateTime;
 use Illuminate\Database\Query\Grammars\Grammar as BaseGrammar;
 use Illuminate\Support\Str;
-use InvalidArgumentException;
 
 class QueryGrammar extends BaseGrammar
 {
@@ -262,69 +261,6 @@ class QueryGrammar extends BaseGrammar
         return reset($compiled);
     }
 
-    /**
-     * Compile a relationship clause
-     *
-     * @param Builder $builder
-     * @param array   $where
-     * @param string  $relationship
-     * @return array
-     * @noinspection PhpUnusedParameterInspection
-     */
-    protected function applyWhereRelationship(Builder $builder, array $where, string $relationship): array
-    {
-        $compiled = $this->compileWheres($where['value']);
-
-        $relationshipFilter = "has_{$relationship}";
-        $type               = $relationship === 'parent' ? 'parent_type' : 'type';
-
-        // pass filter to query if empty allowing a filter interface to be used in relation query
-        // otherwise match all in relation query
-        if (empty($compiled['query'])) {
-            $compiled['query'] = empty($compiled['filter']) ? ['match_all' => (object)[]] : $compiled['filter'];
-        } else if (!empty($compiled['filter'])) {
-            throw new InvalidArgumentException('Cannot use both filter and query contexts within a relation context');
-        }
-
-        $query = [
-            $relationshipFilter => [
-                $type   => $where['documentType'],
-                'query' => $compiled['query'],
-            ],
-        ];
-
-        $query = $this->applyOptionsToClause($query, $where);
-
-        return $query;
-    }
-
-    /**
-     * Compile a parent clause
-     *
-     * @param Builder $builder
-     * @param array   $where
-     * @return array
-     */
-    protected function compileWhereParent(Builder $builder, array $where): array
-    {
-        return $this->applyWhereRelationship($builder, $where, 'parent');
-    }
-
-    /**
-     * @param Builder $builder
-     * @param array   $where
-     * @return array
-     * @noinspection PhpUnusedParameterInspection
-     */
-    protected function compileWhereParentId(Builder $builder, array $where): array
-    {
-        return [
-            'parent_id' => [
-                'type' => $where['relationType'],
-                'id'   => $where['id'],
-            ],
-        ];
-    }
 
     /**
      * @param Builder $builder
@@ -495,13 +431,11 @@ class QueryGrammar extends BaseGrammar
             $cleanWhere['boolean']
         );
 
-        $query = [
+        return [
             'function_score' => [
                 $where['function_type'] => $cleanWhere
             ]
         ];
-
-        return $query;
     }
 
     /**
@@ -664,14 +598,12 @@ class QueryGrammar extends BaseGrammar
      */
     protected function compileWhereGeoDistance(Builder $builder, array $where): array
     {
-        $query = [
+        return [
             'geo_distance' => [
                 'distance'       => $where['distance'],
                 $where['column'] => $where['location'],
             ],
         ];
-
-        return $query;
     }
 
     /**
@@ -1119,37 +1051,20 @@ class QueryGrammar extends BaseGrammar
      */
     public function compileInsert($builder, array $values): array
     {
+        $primary = $builder->primaryKey;
         $params = [];
         foreach ($values as $doc) {
             $this->cleanDoc($doc);
-            if (isset($doc['child_documents'])) {
-                foreach ($doc['child_documents'] as $childDoc) {
-                    $this->cleanDoc($childDoc);
-                    $params['body'][] = [
-                        'index' => [
-                            '_index' => $builder->from . $this->indexSuffix,
-                            '_id'    => $childDoc['id'],
-                            'parent' => $doc['id'],
-                        ]
-                    ];
-
-                    $params['body'][] = $childDoc['document'];
-                }
-
-                unset($doc['child_documents']);
-            }
-
             $index = [
                 '_index' => $builder->from . $this->indexSuffix,
-                '_id'    => $doc['id'],
+                '_id'    => $doc[$primary],
             ];
             $this->checkRoutingOfDoc($builder, $index, $doc);
             $this->checkParentOfDoc($builder, $index, $doc);
             $params['body'][] = ['index' => $index];
             $params['body'][] = $doc;
         }
-        $params = array_merge($params, $builder->getOptions());
-        return $params;
+        return array_merge($params, $builder->getOptions());
     }
 
     /**
@@ -1162,30 +1077,13 @@ class QueryGrammar extends BaseGrammar
      */
     public function compileUpdateByIds($builder, array $values, bool $upsert = false)
     {
+        $primary = $builder->primaryKey;
         $params = [];
         foreach ($values as $doc) {
             $this->cleanDoc($doc);
-            if (isset($doc['child_documents'])) {
-                foreach ($doc['child_documents'] as $childDoc) {
-                    $this->cleanDoc($childDoc);
-                    $params['body'][] = [
-                        'update' => [
-                            '_index' => $builder->from . $this->indexSuffix,
-                            '_id'    => $childDoc['id'],
-                            'parent' => $doc['id'],
-                        ]
-                    ];
-                    $params['body'][] = [
-                        'doc'           => $childDoc['document'],
-                        'doc_as_upsert' => $upsert
-                    ];
-                }
-                unset($doc['child_documents'], $doc['_sort']);
-            }
-
             $update = [
                 '_index' => $builder->from . $this->indexSuffix,
-                '_id'    => $doc['id'],
+                '_id'    => $doc[$primary],
             ];
             $this->checkRoutingOfDoc($builder, $update, $doc);
             $this->checkParentOfDoc($builder, $update, $doc);
@@ -1193,8 +1091,7 @@ class QueryGrammar extends BaseGrammar
             $params['body'][] = ['update' => $update];
             $params['body'][] = ['doc' => $doc, 'doc_as_upsert' => $upsert];
         }
-        $params = array_merge($params, $builder->getOptions());
-        return $params;
+        return array_merge($params, $builder->getOptions());
     }
 
 
@@ -1306,7 +1203,7 @@ class QueryGrammar extends BaseGrammar
     private function cleanDoc(&$doc): void
     {
         if (is_array($doc) && !empty($doc)) {
-            unset($doc['_sort']);
+            unset($doc['_sort'], $doc['_score']);
         }
     }
 }
