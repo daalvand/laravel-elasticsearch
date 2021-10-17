@@ -960,7 +960,8 @@ class Builder extends BaseBuilder
     public function updateByIds(array $values, $upsert = false): bool
     {
         $values = Arr::isAssoc($values) ? [$values] : $values;
-        return $this->connection->bulk($this->grammar->compileUpdateByIds($this, $values, $upsert));
+        $this->connection->bulk($this->grammar->compileUpdateByIds($this, $values, $upsert));
+        return true;
     }
 
     /**
@@ -969,7 +970,8 @@ class Builder extends BaseBuilder
     public function insert(array $values): bool
     {
         $values = Arr::isAssoc($values) ? [$values] : $values;
-        return $this->connection->bulk($this->grammar->compileInsert($this, $values));
+        $this->connection->bulk($this->grammar->compileInsert($this, $values));
+        return true;
     }
 
     /**
