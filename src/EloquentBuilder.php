@@ -14,8 +14,8 @@ use InvalidArgumentException;
  * Class EloquentBuilder
  * @method Builder filter($filters) Support for Searchable::scopeFilter()
  * @method Builder|self wildcard(string $column, string $query, $options = [], $boolean = 'and')
- *  @method Builder|self regexp(string $column, string $query, $options = [], $boolean = 'and')
- *  @method Builder|self queryString($query, $options = [], $boolean = 'and')
+ * @method Builder|self regexp(string $column, string $query, $options = [], $boolean = 'and')
+ * @method Builder|self queryString($query, $options = [], $boolean = 'and')
  * @package Daalvand\LaravelElasticsearch
  */
 class EloquentBuilder extends BaseBuilder
@@ -53,7 +53,18 @@ class EloquentBuilder extends BaseBuilder
         return $this;
     }
 
-
+    /**
+     * Get the hydrated models without eager loading.
+     *
+     * @param array|string $columns
+     * @return Model[]|static[]
+     */
+    public function getModels($columns = ['*'])
+    {
+        return $this->model->hydrate(
+            $this->query->setPrimaryKey($this->model->getKey())->get($columns)->all()
+        )->all();
+    }
 
 
     /**
@@ -71,7 +82,7 @@ class EloquentBuilder extends BaseBuilder
     }
 
     /**
-     * @return EloquentBuilder|Model
+     * @return static|Model
      */
     public function getModel()
     {
@@ -127,7 +138,7 @@ class EloquentBuilder extends BaseBuilder
     public function scroll($columns = ['*'])
     {
         $builder = $this->applyScopes();
-        $result = $this->query->scroll($columns);
+        $result  = $this->query->setPrimaryKey($builder->model->getKey())->scroll($columns);
         /** @noinspection PhpUndefinedMethodInspection */
         $models = $this->model->hydrate($result->getResults()->all())->all();
 
@@ -170,7 +181,7 @@ class EloquentBuilder extends BaseBuilder
      */
     public function cursor()
     {
-        foreach ($this->applyScopes()->query->cursor() as $record) {
+        foreach ($this->applyScopes()->query->setPrimaryKey($this->model->getKey())->cursor() as $record) {
             yield $this->model->newFromBuilder($record);
         }
     }
@@ -203,18 +214,37 @@ class EloquentBuilder extends BaseBuilder
     }
 
 
+    /**
+     * @param array $values
+     * @return bool
+     */
     public function upsert(array $values, $uniqueBy = null, $update = null)
     {
-        return parent::upsert($values, $uniqueBy, $update);
+        if (empty($values)) {
+            return false;
+        }
+
+        if (!is_array(reset($values))) {
+            $values = [$values];
+        }
+
+        return $this->toBase()->setPrimaryKey($this->model->getKey())->upsert($this->addTimestampsToUpsertValues($values));
     }
 
+    /**
+     * @param array $values
+     * @return bool
+     */
     public function updateByIds(array $values)
     {
+        if (empty($values)) {
+            return false;
+        }
         $values = Arr::isAssoc($values) ? [$values] : $values;
         foreach ($values as $index => $value) {
             $values[$index] = $this->addUpdatedAtColumn($value);
         }
-        return $this->toBase()->updateByIds($values);
+        return $this->toBase()->setPrimaryKey($this->model->getKey())->updateByIds($values);
     }
 
 

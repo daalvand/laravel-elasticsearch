@@ -79,6 +79,7 @@ class Builder extends BaseBuilder
      * @var array
      */
     public $operators = ['=', '<', '>', '<=', '>=', '!=', 'exists'];
+    public string $primaryKey = 'id';
 
     public function searchAfter(array $sorts): self
     {
@@ -813,8 +814,9 @@ class Builder extends BaseBuilder
      * @param array $columns
      * @return \Illuminate\Support\Collection
      */
-    public function get($columns = ['*'])
+    public function get($columns = ['*'], string $primary = 'id')
     {
+        $this->primaryKey = $primary;
         $original = $this->columns;
 
         if (is_null($original)) {
@@ -840,10 +842,8 @@ class Builder extends BaseBuilder
             $this->results = null;
         }
         if (!$this->hasProcessedSelect()) {
-            $this->results = $this->processor->processSelect(
-                $this,
-                $byScroll ? $this->runScroll() : $this->runSelect()
-            );
+            $results = $byScroll ? $this->runScroll() : $this->runSelect();
+            $this->results = $this->processor->processSelect($this, $results);
         }
 
         $this->resultsOffset = $this->offset;
@@ -886,7 +886,7 @@ class Builder extends BaseBuilder
      */
     protected function runPaginationCountQuery($columns = ['_id'])
     {
-        return $this->cloneWithout(['columns', 'orders', 'limit', 'offset'])->limit(1)->get($columns)->all();
+        return $this->cloneWithout(['columns', 'orders', 'limit', 'offset'])->limit(0)->get($columns)->all();
     }
 
     /**
@@ -960,8 +960,7 @@ class Builder extends BaseBuilder
     public function updateByIds(array $values, $upsert = false): bool
     {
         $values = Arr::isAssoc($values) ? [$values] : $values;
-        $result = $this->connection->bulk($this->grammar->compileUpdateByIds($this, $values, $upsert));
-        return !($result['errors'] ?? false);
+        return $this->connection->bulk($this->grammar->compileUpdateByIds($this, $values, $upsert));
     }
 
     /**
@@ -970,8 +969,7 @@ class Builder extends BaseBuilder
     public function insert(array $values): bool
     {
         $values = Arr::isAssoc($values) ? [$values] : $values;
-        $result = $this->connection->bulk($this->grammar->compileInsert($this, $values));
-        return !($result['errors'] ?? false);
+        return $this->connection->bulk($this->grammar->compileInsert($this, $values));
     }
 
     /**
@@ -1058,6 +1056,16 @@ class Builder extends BaseBuilder
     public function scrollId(string $scrollId): Builder
     {
         $this->scrollId = $scrollId;
+        return $this;
+    }
+
+    /**
+     * @param string $primaryKey
+     * @return Builder
+     */
+    public function setPrimaryKey(string $primaryKey): self
+    {
+        $this->primaryKey = $primaryKey;
         return $this;
     }
 }
