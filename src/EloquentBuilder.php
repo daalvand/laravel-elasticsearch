@@ -62,7 +62,7 @@ class EloquentBuilder extends BaseBuilder
     public function getModels($columns = ['*'])
     {
         return $this->model->hydrate(
-            $this->query->setPrimaryKey($this->model->getKey())->get($columns)->all()
+            $this->query->setPrimaryKey($this->getModelKey())->get($columns)->all()
         )->all();
     }
 
@@ -181,7 +181,7 @@ class EloquentBuilder extends BaseBuilder
      */
     public function cursor()
     {
-        foreach ($this->applyScopes()->query->setPrimaryKey($this->model->getKey())->cursor() as $record) {
+        foreach ($this->applyScopes()->query->setPrimaryKey($this->getModelKey())->cursor() as $record) {
             yield $this->model->newFromBuilder($record);
         }
     }
@@ -228,7 +228,7 @@ class EloquentBuilder extends BaseBuilder
             $values = [$values];
         }
 
-        return $this->toBase()->setPrimaryKey($this->model->getKey())->upsert($this->addTimestampsToUpsertValues($values));
+        return $this->toBase()->setPrimaryKey($this->getModelKey())->upsert($this->addTimestampsToUpsertValues($values));
     }
 
     /**
@@ -244,7 +244,7 @@ class EloquentBuilder extends BaseBuilder
         foreach ($values as $index => $value) {
             $values[$index] = $this->addUpdatedAtColumn($value);
         }
-        return $this->toBase()->setPrimaryKey($this->model->getKey())->updateByIds($values);
+        return $this->toBase()->setPrimaryKey($this->getModelKey())->updateByIds($values);
     }
 
 
@@ -271,5 +271,13 @@ class EloquentBuilder extends BaseBuilder
         $values[$qualifiedColumn] = $values[$column];
         unset($values[$column]);
         return $values;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getModelKey(): string
+    {
+        return $this->model->getQualifiedKeyName();
     }
 }
